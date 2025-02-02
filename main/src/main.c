@@ -7,15 +7,18 @@
 /*********************
  *      INCLUDES
  *********************/
+#include "SDL.h"
 #define _DEFAULT_SOURCE /* needed for usleep() */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <pthread.h>
 #include "lvgl/lvgl.h"
 #include "lvgl/examples/lv_examples.h"
+#include "lvgl/demos/benchmark/lv_demo_benchmark.h"
 #include "lvgl/demos/lv_demos.h"
-#include "glob.h"
+//#include "glob.h"
 
 /*********************
  *      DEFINES
@@ -43,7 +46,7 @@ static lv_display_t * hal_init(int32_t w, int32_t h);
  **********************/
 
 extern void freertos_main(void);
-
+void ui_init(void);
 /*********************
  *      DEFINES
  *********************/
@@ -64,21 +67,22 @@ extern void freertos_main(void);
  *   GLOBAL FUNCTIONS
  **********************/
 
-int main(int argc, char **argv)
+int main(int argv, char** args)
 {
-  (void)argc; /*Unused*/
+  //        (void)argc; /*Unused*/
+  printf("%s","TEST");
   (void)argv; /*Unused*/
 
   /*Initialize LVGL*/
   lv_init();
 
   /*Initialize the HAL (display, input devices, tick) for LVGL*/
-  hal_init(320, 480);
+  hal_init(320, 240);
 
   #if LV_USE_OS == LV_OS_NONE
  
-  lv_demo_widgets();
-
+  //lv_demo_widgets();
+  lv_demo_benchmark();
   while(1) {
     /* Periodically call the lv_task handler.
      * It could be done in a timer interrupt or an OS task too.*/
@@ -95,7 +99,24 @@ int main(int argc, char **argv)
 
   return 0;
 }
+void ui_init()
+{
+    lv_obj_t *obj;
 
+    /* set screen background to white */
+    lv_obj_t *scr = lv_screen_active();
+    lv_obj_set_style_bg_color(scr, lv_color_white(), 0);
+    lv_obj_set_style_bg_opa(scr, LV_OPA_100, 0);
+
+    /* create label */
+    obj = lv_label_create(scr);
+    lv_obj_set_align(obj, LV_ALIGN_CENTER);
+    lv_obj_set_height(obj, LV_SIZE_CONTENT);
+    lv_obj_set_width(obj, LV_SIZE_CONTENT);
+    lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_color(obj, lv_color_black(), 0);
+    lv_label_set_text(obj, "Hello World!");
+}
 /**********************
  *   STATIC FUNCTIONS
  **********************/

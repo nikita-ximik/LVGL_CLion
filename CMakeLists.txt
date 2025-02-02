@@ -3,7 +3,8 @@ project(lvgl C CXX)
 
 # Set the correct FreeRTOS port for your system (e.g., Posix for WSL)
 set(FREERTOS_PORT GCC_POSIX CACHE STRING "Port for FreeRTOS on Posix environment")
-
+set(SDL2_DIR "SDL2/cmake")
+find_package(SDL2 REQUIRED)
 unset(USE_FREERTOS CACHE)
 
 option(USE_FREERTOS "Enable FreeRTOS" OFF) # Turn this on to enable FreeRTOS
@@ -22,7 +23,7 @@ if(USE_FREERTOS)
     # FreeRTOS-specific include directories
     include_directories(${PROJECT_SOURCE_DIR}/FreeRTOS/include)
     include_directories(${PROJECT_SOURCE_DIR}/FreeRTOS/portable/ThirdParty/GCC/Posix)
-    include_directories(${PROJECT_SOURCE_DIR}/config)
+
 
     # Add FreeRTOS sources
     file(GLOB FREERTOS_SOURCES
@@ -33,11 +34,12 @@ if(USE_FREERTOS)
 else()
     message(STATUS "FreeRTOS is disabled")
     set(FREERTOS_SOURCES "")  # No FreeRTOS sources if FreeRTOS is disabled
+
 endif()
 
 # Main include files of the project
-include_directories(${PROJECT_SOURCE_DIR}/main/inc)
-
+include_directories(${PROJECT_SOURCE_DIR}/main/inc SDL2/x86_64-w64-mingw32/include)
+include_directories(${PROJECT_SOURCE_DIR}/cmake/modules)
 # Define options for LVGL with default values (OFF)
 option(LV_USE_DRAW_SDL "Use SDL draw unit" OFF)
 option(LV_USE_LIBPNG "Use libpng to decode PNG" OFF)
@@ -55,7 +57,8 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 # Find and include SDL2 library
-find_package(SDL2 REQUIRED)
+set(SDL2_PATH "SDL2/x86_64-w64-mingw32")
+#find_package(SDL2 CONFIG HINTS "${SDL2_PATH}")
 
 # Remove ARM-specific compile and linker options
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
@@ -131,8 +134,8 @@ endif()
 # Conditionally include and link FreeType if LV_USE_FREETYPE is enabled
 if(LV_USE_FREETYPE)
     find_package(Freetype REQUIRED)
-    target_include_directories(lvgl PUBLIC ${FREETYPE_INCLUDE_DIRS})
-    target_link_libraries(main ${FREETYPE_LIBRARIES})
+    #target_include_directories(lvgl PUBLIC ${FREETYPE_INCLUDE_DIRS})
+    #target_link_libraries(main ${FREETYPE_LIBRARIES})
 endif()
 
 # Apply additional compile options if the build type is Debug
